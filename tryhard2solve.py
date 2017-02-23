@@ -16,6 +16,15 @@ class tryhard2solve(object):
         self.nrofusedCS     = 3
         self.cachedvideos   = [[2], [3, 1], [0, 1]]
 
+        #NEW STRUCTURE?
+        #datacentre object
+        #  which has a list of video objects
+        #list of endpoints
+        #  each enpoint have a dictionary of latencies
+        #    key id of the cache
+        #    dclat latency to the dc
+        #list of requests
+
     def set(self, nrvideos, endpoints, nrofrequests, nrcache, cachesize, eplatency, videosizes, epcachelatency, requests):
         self.nrvideos       = nrvideos
         self.endpoints      = endpoints
@@ -26,9 +35,13 @@ class tryhard2solve(object):
         self.videosizes     = videosizes
         self.epcachelatency = epcachelatency
         self.requests       = requests
+        self.nrofusedCS     = 0
+        self.cachedvideos   = [[]]
 
     def solver(self):
-        #TODO something
+        #TODO
+        #set self.nrofusedCS
+        #set self.cachedvideos
         file = open("result.txt","w")
         file.write(str(self.nrofusedCS) + '\n')
         for cacheid,videos in enumerate(self.cachedvideos):
@@ -40,14 +53,3 @@ class tryhard2solve(object):
 
 sample = tryhard2solve()
 sample.solver()
-
-
-    #Datacentre object
-#    which has a list of video objects
-
-#list of endpoints
-#    each enpoint will have a dictionary of latencies
-#        key id of the cache
-#        dclat latency to the dc
-
-#list of requests
