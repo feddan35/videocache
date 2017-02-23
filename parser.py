@@ -18,7 +18,7 @@ def parse(filename):
         eplatency.append(int(fline[0]))
         epnrcache = int(fline[1])
         for k in range(0,epnrcache):
-            i+ = 1
+            i += 1
 <<<<<<< HEAD
             epcachelatency[ep].append([list(content[i].rstrip('\n'))])
         ep += 1
