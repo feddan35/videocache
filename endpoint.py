@@ -18,4 +18,4 @@ class Endpoint(object):
     self.reqs = reqs
 
 if __name__ == "__main__":
-  print map(lambda x: x.lats, make_eps([1,2], [[[1,2],[2,3]],[[0,1],[0,0]]], [[[1,2],[2,3]],[[0,1],[0,0]]]))
+  print map(lambda x: x.lats, make_eps([1, 2], [[[1, 2], [2, 3]], [[0, 1], [0, 0]]], [[[1, 2],[2, 3]], [[0, 1], [0, 0]]]))
