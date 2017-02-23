@@ -19,6 +19,7 @@ def parse(filename):
         epnrcache = int(fline[1])
         for k in range(0,epnrcache):
             i+ = 1
+<<<<<<< HEAD
             epcachelatency[ep].append([list(content[i].rstrip('\n'))])
         ep += 1
     requests = []
@@ -26,5 +27,11 @@ def parse(filename):
         fline = content[i].split()
         requests.append(fline)
         i += 1
+=======
+            epcache[ep].append([list(content[i].rstrip('\n'))])
+            ep += 1
+
+    #test commit
+>>>>>>> cba81622734ee4df09af752c8e08a25f266c7753
     
     return [nrvideos,endpoints,nrofrequests,nrcache,cachesize,eplatency,videosizes,epcachelatency,requests]
