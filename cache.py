@@ -7,12 +7,13 @@ class Cache(object):
     self.vids = []
     self.size = 0
 
-  def add_video(video):
+  def add_video(self, video):
     self.vids.append(video)
     self.size += video.size
 
-  def remove_video(video):
+  def remove_video(self, video):
     self.vids.remove(video)
     self.size -= video.size
 
-  
+  def get_video(self):
+    return self.vids
