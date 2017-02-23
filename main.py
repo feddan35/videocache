@@ -1,5 +1,6 @@
 if __name__ == "__main__":
-  import sys, parser, datacentre
+  import sys, parser
+  from datacentre import Datacentre
   filename = sys.argv[1]
   no_vids, no_eps, no_reqs, no_caches, csize, dc_lats, vidsizes, ep_cache_lts, reqs = parser.parse(filename)
 
@@ -13,8 +14,8 @@ if __name__ == "__main__":
     print "The virtual number of requests is different from the declared number of requests!!!"
 
   dc = Datacentre(vidsizes)  
-  eps = endpoint.make_eps(dc_lats, ep_cache_lts, reqs)
-  cs = cache.make_caches(no_caches, csize)
+  #eps = endpoint.make_eps(dc_lats, ep_cache_lts, reqs)
+  #cs = cache.make_caches(no_caches, csize)
 
   print map(lambda x: "{} {}\n".format(x.id, x.size),dc.videos)
   
