@@ -10,7 +10,7 @@ def parse(filename):
     i=1
     ep=0
     eplatency = []
-    videosizes = list(content[i].rstrip('\n'))
+    videosizes = content[i].rstrip('\n').split(" ")
     epcachelatency = [[] for j in range(0,endpoints)]
     while(ep<endpoints):
         i += 1
@@ -19,7 +19,7 @@ def parse(filename):
         epnrcache = int(fline[1])
         for k in range(0,epnrcache):
             i += 1
-            epcachelatency[ep].append([list(content[i].rstrip('\n'))])
+            epcachelatency[ep].append([list(content[i].rstrip('\n').split(" "))])
         ep += 1
     requests = [[] for j in range(0,endpoints)]
     i +=1
