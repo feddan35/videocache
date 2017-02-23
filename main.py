@@ -14,7 +14,7 @@ if __name__ == "__main__":
     print "The virtual number of requests is different from the declared number of requests!!!"
 
   dc = Datacentre(vidsizes)  
-  #eps = endpoint.make_eps(dc_lats, ep_cache_lts, reqs)
+  eps = endpoint.make_eps(dc_lats, ep_cache_lts, reqs)
   #cs = cache.make_caches(no_caches, csize)
 
   print map(lambda x: "{} {}\n".format(x.id, x.size),dc.videos)
