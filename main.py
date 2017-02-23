@@ -17,5 +17,5 @@ if __name__ == "__main__":
   eps = endpoint.make_eps(dc_lats, ep_cache_lts, reqs)
   #cs = cache.make_caches(no_caches, csize)
 
-  print map(lambda x: "{} {}\n".format(x.id, x.size),dc.videos)
+  print map(lambda x: "{} }\n".format(x.id, x.size),dc.videos)
   
