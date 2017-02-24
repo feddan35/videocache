@@ -6,4 +6,5 @@ class Datacentre(object):
     id = 0
     for video_size in videos:
       self.videos.append(Video(id, video_size))
+      id += 1
     
