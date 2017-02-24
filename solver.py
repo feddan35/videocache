@@ -13,8 +13,9 @@ def solve(dc,eps,cache):
                 maxvid = i
         pv.append([maxval,maxvid,maxi])
     sortedpv = sorted([pv[i]/dc.vids[i].size for i in dc.vids], reverse = True)
-    for i in sortedpv:
-        if cache[i[2]].size > dc.vids[i[1]].size
-            cache[i[2]].add_video(i[1])
+    dynval = 1
+    for i in range(0,dynval*sortedpv):
+        if cache[sortedpv[i[2]]].size > dc.vids[sortedpv[i[1]]].size
+            cache[sortedpv[i[2]]].add_video(sortedpv[i[1]])
     
     return cache
