@@ -1,14 +1,18 @@
-def make_eps(dc_lats, ep_cache_lts, reqs):
+import request
+
+def make_eps(dc_lats, ep_cache_lts, reqs, dc):
   eps = []
   n = len(dc_lats)
   for i in range(n):
     epcachelats = {}
     for data in ep_cache_lts[i]:
       epcachelats[data[0]] = data[1]
-    reqs = {}
-    for data in reqs:
-      reqs[data[0]] = data[1]
-    eps.append(Endpoint(epcachelats, dc_lats[i], reqs))
+    _reqs = request.make_requests(reqs[i], dc)
+    _e = Endpoint(epcachelats, dc_lats[i], _reqs)
+    for r in _e.reqs:
+      r.ep = _e
+    eps.append(_e)
+    
   return eps
 
 class Endpoint(object):
