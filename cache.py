@@ -17,3 +17,6 @@ class Cache(object):
 
   def get_video(self):
     return self.vids
+
+  def left(self):
+    return self.maxsize - self.size
