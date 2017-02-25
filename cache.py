@@ -1,3 +1,6 @@
+import numpy as np
+import video
+
 def make_caches(no_caches, csize):
   return [Cache(i, csize) for i in range(no_caches)]
 
@@ -11,21 +14,24 @@ class Cache(object):
   def __init__(self, id, csize):
     self.id = id
     self.maxsize = csize
-    self.vids = []
+    self.vids = np.array([], dtype = video.Video)
     self.size = 0
 
   def add(self, video):
-    #print "space left: {} video size: {} outcome: {}".format(self.left(), video.size, self.left() < video.size)
     if self.left() < video.size:
       raise CacheOverflowException("Trying to add video to cache that doesn't have enough space!!!")
-    self.vids.append(video)
+    self.vids = np.append(self.vids, [video])
     self.size += video.size
-    video.cache.append(self)
+    video.cache = np.append(video.cache, [self])
+    for r in video.reqs:
+      r.minlat = min(r.minlat, r.getlat(self.id))
 
   def remove(self, video):
     self.vids.remove(video)
     self.size -= video.size
-    video.cache.remove(self)
+    np.setdiff1d(video.cache, [self])
+    for r in video.reqs:
+      r.put_ep(r.ep)
 
   def getvids(self):
     return self.vids

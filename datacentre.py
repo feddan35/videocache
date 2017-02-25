@@ -1,10 +1,8 @@
 from video import Video
+import numpy as np
 
 class Datacentre(object):
   def __init__(self, videos):
-    self.videos = []
-    id = 0
-    for video_size in videos:
-      self.videos.append(Video(id, video_size))
-      id += 1
-    
+    self.videos = np.zeros(len(videos), dtype = Video)
+    for i, size in enumerate(videos):
+      self.videos[i] = Video(i, size)
