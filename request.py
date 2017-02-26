@@ -40,5 +40,10 @@ class Request(object):
     return self.no * (self.ep.dclat - lat)
 
   def score_if_slow(self, cache):
-    return self.no * (self.ep.dclat - min(map(lambda x: self.ep.lats[x.id] if x.id in self.ep.lats.keys() else 0, np.array(list(set(np.append(self.vid.cache, [cache])))))))
-
+    _min = self.ep.dclat
+    for i in self.vid.cache:
+      _min = min(_min, self.ep.lats[i.id]) if i.id in self.ep.lats.keys() else _min
+    if cache.id in self.ep.lats.keys():
+      return self.no * (self.ep.dclat - min(_min, self.ep.lats[cache.id]))
+    else:
+      return self.no * (self.ep.dclat - _min)

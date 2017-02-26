@@ -16,8 +16,8 @@ if __name__ == "__main__":
     print "The virtual number of endpoints is different from the declared number of endpoints!!!"
 
   dc = Datacentre(vidsizes)  
-  eps = endpoint.make_eps(dc_lats, ep_cache_lts, reqs, dc)
   cs = cache.make_caches(no_caches, csize)
+  eps = endpoint.make_eps(dc_lats, ep_cache_lts, reqs, dc, cs)
 
   import KSSolver
   #print KSSolver.solve_random(cs, dc, eps)

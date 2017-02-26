@@ -19,7 +19,7 @@ def parse(filename):
         epnrcache = int(fline[1])
         for k in range(0, epnrcache):
             i += 1
-            epcachelatency[ep].append(list(content[i].rstrip("\n").split(" ")))
+            epcachelatency[ep].append(map(int, list(content[i].rstrip("\n").split(" "))))
         ep += 1
     requests = [[] for j in range(0,endpoints)]
     i += 1

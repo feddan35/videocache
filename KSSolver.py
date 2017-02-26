@@ -51,6 +51,9 @@ def get_values(vids):
 
 def solve_bl_ks(caches, datacentre, endpoints):
   t1 = time()
+  def byNoOfPossibleEPs(c): # heuristic 1
+    return len(c.eps)
+  caches.sort(key = byNoOfPossibleEPs)
   for c in caches:
     t3 = time()
     vals = np.zeros(datacentre.videos.size) #datacentre.getvals(c.id) #map(lambda x: x.spv(c.id), datacentre.videos)
@@ -108,4 +111,5 @@ def max_knapsack(vals, sizs, csiz):
     if added:
       result.append(x-1)
       y -= sizs[x-1]
+  #import code; code.interact(local=locals())
   return result

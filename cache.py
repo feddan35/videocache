@@ -12,10 +12,11 @@ class CacheOverflowException(Exception):
 
 class Cache(object):
   def __init__(self, id, csize):
-    self.id = id
+    self.id = int(id)
     self.maxsize = csize
     self.vids = np.array([], dtype = video.Video)
     self.size = 0
+    self.eps = []
 
   def add(self, video):
     if self.left() < video.size:
