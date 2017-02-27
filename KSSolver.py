@@ -49,27 +49,34 @@ def solve_bl_rec_ks(caches, datacentre, endpoints):
 def get_values(vids):
   vals = np.zeros(vids.size)
 
-def solve_bl_ks(caches, datacentre, endpoints):
-  t1 = time()
+def solve_ks_h1(caches, datacentre, endpoints):
   def byNoOfPossibleEPs(c): # heuristic 1
     return len(c.eps)
   caches.sort(key = byNoOfPossibleEPs)
+  return solve_bl_ks(caches, datacentre, endpoints)
+
+def solve_bl_ks(caches, datacentre, endpoints):
+  t1 = time()
   for c in caches:
     t3 = time()
-    vals = np.zeros(datacentre.videos.size) #datacentre.getvals(c.id) #map(lambda x: x.spv(c.id), datacentre.videos)
+    vals = [0] * datacentre.videos.size
     for x in xrange(datacentre.videos.size):
       vals[x] = datacentre.videos[x].spv(c)
     sizs = map(lambda x: x.size, datacentre.videos)
     csiz = caches[0].maxsize
     t4 = time()
-    to_add = max_knapsack(vals, sizs, csiz)
+    to_add = dp_knapsack(vals, sizs, csiz)
+    #t6 = time()
+    #to_add = max_knapsack3(vals, sizs, csiz)
+    #t7 = time()
+    #print "knapsack: {:.6f}ms max_knapsack: {:.6f}ms".format((t6-t4)*1000, (t7-t6)*1000)
     for i in to_add:
       c.add(datacentre.videos[i])
     t5 = time()
-    print "Cache {}/{} {:.10f}ms".format(c.id, len(caches), (t4 - t3) * 1000)
-    print "Knapsack {:.10f}ms".format((t5-t4)*1000)
+    print "Cache {}/{} {:.6f}s".format(c.id, len(caches), (t4 - t3))
+    print "Knapsack {:.6f}s".format((t5-t4))
   t2 = time()
-  print "madagaskar {:.10f}s".format(t2 - t1)
+  print "madagaskar {:.6f}min".format((t2 - t1)/60.0)
   return tscore(endpoints, 'com')
 
 def rec_knapsack(items, maxweight):
@@ -93,17 +100,16 @@ def rec_knapsack(items, maxweight):
     result.reverse()
     return bestvalue(len(items), maxweight), result
 
-def max_knapsack(vals, sizs, csiz):
-  dp = np.zeros((vals.size + 1, csiz + 1))
+def dp_knapsack(vals, sizs, csiz):
+  dp = np.zeros((len(vals) + 1, csiz + 1))
   
-  for i in xrange(1, vals.size + 1):
+  for i in xrange(1, len(vals) + 1):
     for s in xrange(1, csiz + 1):
       if sizs[i-1] > s:
         dp[i, s] = dp[i-1, s]
       else:
         dp[i, s] = max(dp[i-1, s],
                        dp[i-1, s-sizs[i-1]] + vals[i-1])
-
   result = []
   y = csiz
   for x in range(len(vals), 0, -1):
@@ -111,5 +117,68 @@ def max_knapsack(vals, sizs, csiz):
     if added:
       result.append(x-1)
       y -= sizs[x-1]
-  #import code; code.interact(local=locals())
   return result
+
+def max_knapsack(vals, sizs, csiz):
+  dpv = [0] * (csiz + 1)
+  dpl = [[]] * (csiz + 1)
+  for ccsize in xrange(1, csiz + 1):
+    for x in xrange(len(vals)):
+      if ccsize < sizs[x] or dpv[ccsize - 1] >= dpv[ccsize - sizs[x]] + vals[x]:
+        dpv[ccsize] = dpv[ccsize - 1]
+        dpl[ccsize] = dpl[ccsize - 1]
+      else:
+        dpv[ccsize] = dpv[ccsize - sizs[x]] + vals[x]
+        dpl[ccsize] = dpl[ccsize - sizs[x]] + [x]
+  return dpl[-1]
+
+mama = True
+
+def max_knapsack2(vals, sizs, csiz):
+  dpv = [0] * (csiz + 1)
+  dpl = [[]] * (csiz + 1)
+  for ccsize in xrange(1, csiz + 1):
+    for x in xrange(len(vals)):
+      if ccsize < sizs[x] or dpv[ccsize - 1] >= dpv[ccsize - sizs[x]] + vals[x]:
+        dpv[ccsize] = dpv[ccsize - 1]
+        dpl[ccsize] = dpl[ccsize - 1]
+      else:
+        dpv[ccsize] = dpv[ccsize - sizs[x]] + vals[x]
+        dpl[ccsize] = dpl[ccsize - sizs[x]] + [x]
+  return dpl[-1]
+
+def max_knapsack3(vals, sizs, csiz):
+  dp = [[0, []]] * (csiz + 1)
+  for ccsize in xrange(1, csiz + 1):
+    _max = dp[ccsize - 1]
+    for x in xrange(len(vals)):
+        if ccsize < sizs[x] or (ccsize >= sizs[x] and x in dp[ccsize - sizs[x]][1]):
+          continue
+        if dp[ccsize - sizs[x]][0] + vals[x] > _max[0]:
+          _max = [dp[ccsize - sizs[x]][0] + vals[x], dp[ccsize - sizs[x]][1] + [x]]
+    if dp[ccsize - 1][0] >= _max[0]:
+      dp[ccsize] = dp[ccsize - 1]
+    else:
+      dp[ccsize] = _max
+  return dp[-1][1]
+
+def solve_benchmark(caches, datacentre, endpoints):
+    c = caches[0]
+    vals = [0] * datacentre.videos.size
+    for x in xrange(datacentre.videos.size):
+      vals[x] = datacentre.videos[x].spv(c)
+    sizs = map(lambda x: x.size, datacentre.videos)
+    csiz = caches[0].maxsize
+    
+    fs = [dp_knapsack, max_knapsack, max_knapsack2, max_knapsack3]
+
+    for f in range(4):
+      t1 = time()
+      for i in range(100):
+        fs[f](vals, sizs, csiz)
+      t2 = time()
+      print "{} took {:.6f}s".format(fs[f].__name__, t2 - t1)
+
+    print dp_knapsack(vals, sizs, csiz)
+    print max_knapsack3(vals, sizs, csiz)
+    print sorted(dp_knapsack(vals, sizs, csiz)) == sorted(max_knapsack3(vals, sizs, csiz))
