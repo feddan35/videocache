@@ -1,21 +1,71 @@
-def solve(dc,eps,cache):
-    pevc = [[[eps[i].reqs[j]*(eps[i].dclat - eps[i].lats[k]) for k in cache] for j in eps[i].reqs.keys()] for i in eps]
-    rvc = [[sum(pevc[i,j]) for j in cache] for i in dc.vids]
-    pv = [] 
-    for i in dc.vids:
-        maxv = rvc[i,0]
-        maxi = 0
-        maxvid = i
-        for j in cache:
-            if(rvc[i,j]>maxv):
-                maxval = rvc[i,j]
-                maxi = j
-                maxvid = i
-        pv.append([maxval,maxvid,maxi])
-    sortedpv = sorted([pv[i]/dc.vids[i].size for i in dc.vids], reverse = True)
-    dynval = 1
-    for i in range(0,dynval*sortedpv):
-        if cache[sortedpv[i[2]]].size > dc.vids[sortedpv[i[1]]].size
-            cache[sortedpv[i[2]]].add_video(sortedpv[i[1]])
-    
-    return cache
+from time import time
+from collections import deque
+
+def score(req, ep):
+  if len(req.vid.cache) == 0:
+    return 0
+  return req.no * (ep.dclat - min(map(lambda x: ep.lats[x.id] if x.id in ep.lats.keys() else 0, req.vid.cache)))
+
+def tscore(endpoints, mode = 'ms'):
+  tscore = 0
+  rn = 0
+  for ep in endpoints:
+    for r in ep.reqs:
+      tscore += score(r, ep)
+      rn     += r.no
+  return tscore * 1000 if mode == 'mic' else (tscore * 1000) / rn if mode == 'com' else tscore
+
+def solve_random(caches, datacentre, endpoints):
+  import random
+  from cache import CacheOverflowException
+  videos = datacentre.videos
+  for c in caches:
+    has_space = True
+    while has_space:
+      vid = random.choice(videos)
+      try:
+        c.add(vid)
+      except CacheOverflowException:
+        has_space = False
+  return tscore(endpoints, 'com')
+
+def byNoOfPossibleEPs(c): # heuristic 1
+  return len(c.eps)
+
+def byValuePerSize(c): # heuristic 2
+  return lambda v: float(v.spv(c)) / float(v.size)
+
+def solve(caches, datacentre, endpoints):
+  caches.sort(key = byNoOfPossibleEPs)
+
+  for i, c in enumerate(caches):
+    t1 = time()
+
+    datacentre.videos.sort(key = byValuePerSize(c), reverse = True)
+
+    sizs = map(lambda x: x.size, datacentre.videos)
+    csiz = caches[0].maxsize
+
+    t2 = time()
+
+    vids2add = max_knapsack(sizs, csiz)
+    for v in vids2add:
+      c.add(datacentre.videos[v])
+
+    t3 = time()
+
+    print "Cache {}/{} finished with times {}s prep + {}s knapsack".format(i, len(caches), t2 - t1, t3 - t2)
+  return tscore(endpoints, 'com')
+
+def max_knapsack(sizs, csiz):
+  size = 0
+  ret = []
+  q = deque(zip(sizs, range(len(sizs))))
+  while len(q) > 0:
+    curr_elem = q.popleft()
+    if curr_elem[0] > (csiz - size):
+      continue
+    else:
+      ret.append(curr_elem[1])
+      size += curr_elem[0]
+  return ret

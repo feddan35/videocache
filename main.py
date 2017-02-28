@@ -1,32 +1,28 @@
 if __name__ == "__main__":
-  import sys, parser, endpoint, cache
-  from datacentre import Datacentre
+  import sys, os, zipfile
   from time import time
-  
-  filename = sys.argv[1]
-  t1 = time()
-  no_vids, no_eps, no_reqs, no_caches, csize, dc_lats, vidsizes, ep_cache_lts, reqs = parser.parse(filename)
-  t2 = time()
-  print "parser took {:.10f}ms".format((t2 - t1)*1000)
 
-  if no_vids != len(vidsizes):
-    print "The virtual number of videos is different to the declared number of videos!!!"
+  import parser, serializer, endpoint, cache, datacentre, solver
 
-  if no_eps != len(dc_lats):
-    print "The virtual number of endpoints is different from the declared number of endpoints!!!"
+  for f in ['me_at_the_zoo', 'trending_today', 'videos_worth_spreading', 'kittens']:
 
-  dc = Datacentre(vidsizes)  
-  cs = cache.make_caches(no_caches, csize)
-  eps = endpoint.make_eps(dc_lats, ep_cache_lts, reqs, dc, cs)
+    filenamein = 'input/' + f + '.in'
+    t1 = time()
+    no_vids, no_eps, no_reqs, no_caches, csize, dc_lats, vidsizes, ep_cache_lts, reqs = parser.parse(filenamein)
+    t2 = time()
+    print "parsing {} took {:.3f}s".format(filenamein, t2 - t1)
 
-  import KSSolver
-  #print KSSolver.solve_random(cs, dc, eps)
+    dc = datacentre.Datacentre(vidsizes)
+    cs = cache.make_caches(no_caches, csize)
+    eps = endpoint.make_eps(dc_lats, ep_cache_lts, reqs, dc, cs)
 
-  #dc = Datacentre(vidsizes)
-  #eps = endpoint.make_eps(dc_lats, ep_cache_lts, reqs, dc)
-  #cs = cache.make_caches(no_caches, csize)
+    print solver.solve(cs, dc, eps)
 
-  print KSSolver.solve_bl_ks(cs, dc, eps)
+    filenameout = 'output/' + f + '.out'
+    serializer.serialize(cs, filenameout)
 
-
-  #import code; code.interact(local=locals())
+  zipf = zipfile.ZipFile('output/submission.zip', 'w', zipfile.ZIP_DEFLATED)
+  for file in os.listdir('.'):
+    if file[-3:] == '.py':
+      zipf.write(file)
+  zipf.close()
