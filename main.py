@@ -2,7 +2,12 @@ if __name__ == "__main__":
   import sys, os, zipfile
   from time import time
 
-  import parser, serializer, endpoint, cache, datacentre, solver
+  import src.parser as parser
+  import src.serializer as serializer
+  import src.endpoint as endpoint
+  import src.cache as cache
+  import src.datacentre as datacentre
+  import src.solver as solver
 
   for f in ['me_at_the_zoo', 'trending_today', 'videos_worth_spreading', 'kittens']:
 
