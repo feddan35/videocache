@@ -30,4 +30,7 @@ if __name__ == "__main__":
   for file in os.listdir('.'):
     if file[-3:] == '.py':
       zipf.write(file)
+  for file in os.listdir('src'):
+    if file[-3:] == '.py':
+      zipf.write(os.path.join('src', file))
   zipf.close()

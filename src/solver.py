@@ -1,5 +1,8 @@
 from time import time
 from collections import deque
+import operator
+from cache import CacheOverflowException
+import copy
 
 def score(req, ep):
   if len(req.vid.cache) == 0:
@@ -33,10 +36,10 @@ def byNoOfPossibleEPs(c): # heuristic 1
   return len(c.eps)
 
 def byValuePerSize(c): # heuristic 2
-  return lambda v: float(v.spv(c)) / float(v.size)
+  return lambda v: float(v.spvdiff(c)) / float(v.size)
 
 def solve(caches, datacentre, endpoints):
-  caches.sort(key = byNoOfPossibleEPs)
+  caches.sort(key = byNoOfPossibleEPs, reverse=True)
 
   for i, c in enumerate(caches):
     t1 = time()
@@ -55,6 +58,46 @@ def solve(caches, datacentre, endpoints):
     t3 = time()
 
     print "Cache {}/{} finished with times {}s prep + {}s knapsack".format(i, len(caches), t2 - t1, t3 - t2)
+  return tscore(endpoints, 'com')
+
+def solve_parallel(cs, datacentre, endpoints):
+  orig_videos = []
+  for c in cs:
+    orig_videos.append([v for v in datacentre.videos if any(map(lambda x: c.id in x.ep.lats, v.reqs))])
+  t1 = time()
+  caches = copy.copy(cs)
+  csizes = [caches[0].maxsize] * len(caches)
+  qs = [[]] * len(caches)
+  maxs = [0] * len(caches)
+  while len(caches) > 0:
+    vid = [0] * len(caches)
+    maxs = [0] * len(caches)
+    print "Sorting..."
+    for i, c in enumerate(caches):
+      qs[i] = sorted(orig_videos[i], key = byValuePerSize(c), reverse = True)
+      maxs[i] = qs[i][vid[i]]
+    finished = False
+    while not finished:
+      print "Recalculating..."
+      cid = max(enumerate(maxs), key=operator.itemgetter(1))[0]
+      if caches[cid].left() >= qs[cid][vid[cid]].size:
+        print "Adding {} to {}".format(qs[cid][vid[cid]].id, caches[cid].id)
+        caches[cid].add(qs[cid][vid[cid]])
+        finished = True
+        break
+      else:
+        print "Video {} doesn't fit...".format(qs[cid][vid[cid]].id)
+        vid[cid] += 1
+        if vid[cid] >= len(orig_videos[cid]):
+          print "Cache {} is full!".format(caches[cid].id)
+          del caches[cid]
+          del orig_videos[cid]
+          finished = True
+        else:
+          maxs[cid] = qs[cid][vid[cid]]
+    print [x.left() for x in caches]
+  t2 = time()
+  print "Finished with time: {:.6f}s".format(t2 - t1)
   return tscore(endpoints, 'com')
 
 def max_knapsack(sizs, csiz):

@@ -39,6 +39,12 @@ class Request(object):
       lat = self.minlat
     return self.no * (self.ep.dclat - lat)
 
+  def score_diff_if(self, cid):
+    try:
+      return self.no * max(self.minlat - self.ep.lats[cid], 0)
+    except KeyError:
+      return 0
+
   def score_if_slow(self, cache):
     _min = self.ep.dclat
     for i in self.vid.cache:

@@ -12,5 +12,11 @@ class Video(object):
   def spv(self, c):
     total = 0
     for r in self.reqs:
-      total += r.score_if_slow(c)
+      total += r.score_if(c.id)
+    return total
+
+  def spvdiff(self, c):
+    total = 0
+    for r in self.reqs:
+      total += r.score_diff_if(c.id)
     return total
