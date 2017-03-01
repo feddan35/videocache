@@ -18,6 +18,7 @@ class Request(object):
   def put_ep(self, ep):
     self.ep = ep
     self.minlat = ep.dclat
+    self.vid.posscache = self.vid.posscache.union(set(self.ep.lats.keys()))
 
     for c in self.vid.cache:
       try:

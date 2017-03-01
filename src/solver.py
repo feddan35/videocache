@@ -35,8 +35,15 @@ def solve_random(caches, datacentre, endpoints):
 def byNoOfPossibleEPs(c): # heuristic 1
   return len(c.eps)
 
+def flatten(l):
+  return [item for sublist in l for item in sublist]
+
 def byValuePerSize(c): # heuristic 2
-  return lambda v: float(v.spvdiff(c)) / float(v.size)
+  def byVPSfunc(v):
+    if v.posscache == []:
+      import code; code.interact(local=locals())
+    return (float(v.spvdiff(c)) / float(v.size)) / float(len(v.posscache) + 1)
+  return byVPSfunc
 
 def solve(caches, datacentre, endpoints):
   caches.sort(key = byNoOfPossibleEPs, reverse=True)
@@ -112,3 +119,61 @@ def max_knapsack(sizs, csiz):
       ret.append(curr_elem[1])
       size += curr_elem[0]
   return ret
+
+class max_q(object):
+
+  def maxqnode_val(n):
+    return n.value
+  
+  def __init__(self, maxsize, granularity):
+    self.start = None
+    self.index = {}
+    self.g = granularity
+    for i in range(0, maxsize, granularity):
+      self.index[i] = []
+
+  def push(self, value):
+    if self.start is None:
+      self.start = maxq_node(value)
+    else:
+      new_node = maxq_node(value)
+      new_node.next = self.start
+      self.start.previous = new_node
+      self.start = new_node
+      self.index[value/g].append(self.start)
+      self.index[value/g].sort(key=maxqnode_val)
+
+  def pop(self, value):
+    if self.start is None:
+      return None
+    else:
+      old_start = self.start
+      self.start.next.previous = None
+      self.start = self.start.next
+      self.index[old_start.value/self.g].remove(old_start)
+      return old_start.value
+
+  def relocate(self, node, value):
+    self.index[node.value/self.g].remove(node.value)
+    self.index[value/self.g].append(node)
+    node.value = value
+    if node.value < node.next.value or node.next is None:
+      return
+    else:
+      if node == self.start:
+        self.start = self.start.next
+        self.start.previous = None
+      while True:
+        i = node.value/self.g
+        
+        
+
+
+class maxq_node(object):
+
+  def __init__(self, value):
+    self.value = value
+    self.next = None
+    self.previous = None
+
+  

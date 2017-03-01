@@ -8,6 +8,7 @@ class Video(object):
     self.id = _id
     self.cache = np.array([], dtype = cache.Cache)
     self.reqs = np.array([], dtype = request.Request)
+    self.posscache = set([])
 
   def spv(self, c):
     total = 0
